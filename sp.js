@@ -1,22 +1,17 @@
-var baudio = require('baudio')()
-sp = require('serialport')
-SP = sp.SerialPort
-port = new SP('/dev/tty.usbmodemfa141')
-var tpad = []
-port.on('data', function(data){
+midi = require('midi')
 
-  data = data.toString().split(',')[1]
-  tpad[0] = (Number(data) / 18560) || 0
-  console.log(tpad[0]) 
+output = new midi.output()
+
+output.openVirtualPort('guitarai')
+
+input = new midi.input()
+
+input.openVirtualPort(input.getPortName(0))
+
+input.on('message', function(t, m){
+  console.log(t, m)
 })
 
-baudio.push(synth)
-baudio.play()
-
-
-
-function synth(t){
-  return Math.sin(440 * t * Math.PI * 2) * tpad[0] / 2
-}
-
-
+setTimeout(function(){
+  output.sendMessage([127, 20, 1])
+  }, 1000)
